@@ -2,17 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, viewport-fit=cover"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Prosper – Property‑Supplier Relationship Engine</title>
 
-  <!--
-    Microsoft Teams JavaScript SDK (v2.x).
-    Using the official Microsoft CDN with SRI and CORS as documented on npm.
-  -->
-  https://res.cdn.office.net/teams-js/2.41.0/js/MicrosoftTeams.min.js
+  <!-- 1) Load a LOCAL copy of Teams JS SDK first (to avoid corporate CDN blocks).
+         Add this file to your repo at: /Prosper/lib/MicrosoftTeams.min.js
+         Reference: https://www.npmjs.com/package/@microsoft/teams-js -->
+  </lib/MicrosoftTeams.min.js</script>
+
+  <!-- 2) Fallback to Microsoft CDN if local file not found/blocked. -->
+  <script>
+    (function ensureTeamsSdk() {
+      if (!window.microsoftTeams || !microsoftTeams.app) {
+        const s = document.createElement('script');
+        s.src = "https://res.cdn.office.net/teams-js/2.41.0/js/MicrosoftTeams.min.js";
+        s.crossOrigin = "anonymous";
+        s.integrity = "sha384-foat9bCJflCyiUx3dfsImCX29CW3tNCWjj2SYbHfO8fhbVBR6Z/UsY6i2ihfwpvZ";
+        document.head.appendChild(s);
+      }
+    })();
   </script>
 
   <style>
@@ -20,13 +28,13 @@
       --bg: #ffffff;
       --fg: #202124;
       --muted: #5f6368;
-      --brand: #6264a7; /* Teams purple */
+      --brand: #6264a7;
       --btn-fg: #ffffff;
       --btn-bg: var(--brand);
       --btn-bg-hover: #4a4d8d;
       --border: #e0e0e0;
+      --warn: #a74141;
     }
-    /* Dark & High-Contrast modes are applied dynamically via body classes */
     body.teams-dark {
       --bg: #2b2b30;
       --fg: #f3f3f3;
@@ -36,108 +44,34 @@
       --btn-bg-hover: #6c70cc;
     }
     body.teams-contrast {
-      --bg: #000000;
-      --fg: #ffffff;
-      --muted: #ffffff;
-      --border: #ffffff;
-      --btn-bg: #ffff00;
-      --btn-fg: #000000;
-      --btn-bg-hover: #ffe100;
+      --bg: #000000; --fg: #ffffff; --muted: #ffffff; --border: #ffffff;
+      --btn-bg: #ffff00; --btn-fg: #000000; --btn-bg-hover: #ffe100;
     }
 
-    html, body {
-      height: 100%;
-      margin: 0;
-      background: var(--bg);
-      color: var(--fg);
-      font: 14px/1.4 system-ui, Segoe UI, -apple-system, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    }
-    .page {
-      min-height: 100%;
-      box-sizing: border-box;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-    }
-    header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
-    }
-    header img {
-      width: 28px;
-      height: 28px;
-    }
-    header h1 {
-      font-size: 18px;
-      font-weight: 600;
-      margin: 0;
-    }
-    header .sub {
-      color: var(--muted);
-      font-weight: 400;
-      margin-left: auto;
-      font-size: 12px;
-    }
-    main {
-      padding: 24px 20px 28px;
-    }
-    .card {
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px;
-      max-width: 920px;
-      background: var(--bg);
-    }
-    .row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-      margin-top: 12px;
-    }
-    .btn {
-      appearance: none;
-      border: 0;
-      border-radius: 6px;
-      padding: 10px 14px;
-      color: var(--btn-fg);
-      background: var(--btn-bg);
-      cursor: pointer;
-      font-weight: 600;
-    }
+    html, body { height: 100%; margin: 0; background: var(--bg); color: var(--fg);
+      font: 14px/1.4 system-ui, Segoe UI, -apple-system, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; }
+    .page { min-height: 100%; display: grid; grid-template-rows: auto 1fr auto; }
+    header { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    header h1 { font-size: 18px; font-weight: 600; margin: 0; }
+    header .sub { color: var(--muted); margin-left: auto; font-size: 12px; }
+    main { padding: 24px 20px 28px; }
+    .card { border: 1px solid var(--border); border-radius: 10px; padding: 16px; max-width: 980px; background: var(--bg); }
+    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+    .btn { appearance: none; border: 0; border-radius: 6px; padding: 10px 14px; color: var(--btn-fg); background: var(--btn-bg); cursor: pointer; font-weight: 600; }
     .btn:hover { background: var(--btn-bg-hover); }
-
     .muted { color: var(--muted); }
-    .mono  { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
-
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 12px 20px;
-      color: var(--muted);
-      font-size: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    /* Simple in-page loading state (Teams also shows native spinner when showLoadingIndicator=true) */
-    #loading {
-      display: none;
-      padding: 16px;
-    }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+    footer { border-top: 1px solid var(--border); padding: 12px 20px; color: var(--muted); font-size: 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    #loading { display: none; padding: 16px; }
     #loading.active { display: block; }
+    #error { color: var(--warn); white-space: pre-wrap; }
   </style>
 </head>
-
 <body>
   <div class="page">
     <header>
-      <!-- Optional favicon or logo; you can replace with your own asset -->
-      <img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/200s="sub">Property‑Supplier Relationship Engine</div>
+      <h1>Prosper</h1>
+      <div class="sub">Property‑Supplier Relationship Engine</div>
     </header>
 
     <main>
@@ -148,7 +82,6 @@
           Welcome to <strong>Prosper</strong> inside Microsoft Teams.
           Use the button below to open your Snowflake AI workspace.
         </p>
-
         <div class="row">
           <button id="openSnowflake" class="btn">Open Snowflake AI</button>
           <span id="env" class="muted mono"></span>
@@ -156,18 +89,14 @@
 
         <details style="margin-top:14px">
           <summary>Diagnostics</summary>
+          <div id="error" class="mono"></div>
           <pre id="diag" class="mono" style="white-space:pre-wrap"></pre>
         </details>
       </div>
 
       <div id="notInTeams" class="card" hidden>
-        <p>
-          This page is designed to run as a <strong>Teams personal tab</strong>.
-          You can still test it here in the browser, but some features are disabled.
-        </p>
-        <p class="muted">
-          Tip: Open from the left rail in Teams to see the full experience.
-        </p>
+        <p>This page is designed to run as a <strong>Teams personal tab</strong>.</p>
+        <p class="muted">Open it from the left rail in Teams to see the full experience.</p>
       </div>
     </main>
 
@@ -178,83 +107,94 @@
   </div>
 
   <script>
-    // ---- Configuration -------------------------------------------------------
-    // Matches your manifest's websiteUrl – used when user clicks "Open Snowflake AI".
+    // --- Config ---------------------------------------------------------------
     const SNOWFLAKE_URL = "https://app.snowflake.com/aramark/qa_gsc_gpo/#/ai";
 
-    // ---- Utilities -----------------------------------------------------------
-    function isRunningInIframe() {
-      try { return window.self !== window.top; } catch { return true; }
-    }
+    // --- Helpers --------------------------------------------------------------
+    const $ = (id) => document.getElementById(id);
     function applyTheme(theme) {
       document.body.classList.remove("teams-dark", "teams-contrast");
       if (theme === "dark") document.body.classList.add("teams-dark");
       if (theme === "contrast") document.body.classList.add("teams-contrast");
     }
-    function show(id, flag) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      if (flag) el.removeAttribute("hidden");
-      else el.setAttribute("hidden", "hidden");
-    }
-    function setLoading(flag) {
-      document.getElementById("loading").classList.toggle("active", !!flag);
+    function setLoading(flag) { $("loading").classList.toggle("active", !!flag); }
+    function show(id, flag) { const el = $(id); el.hidden = !flag; }
+    function isInIframe() { try { return window.self !== window.top; } catch { return true; } }
+    function logError(msg, err) {
+      console.error(msg, err || "");
+      $("error").textContent = msg + (err ? ("\n" + (err.stack || err.message || String(err))) : "");
     }
 
-    // ---- Main ---------------------------------------------------------------
+    // Capture unexpected errors in Diagnostics
+    window.addEventListener("error", (e) => logError("Unhandled error:", e.error || e.message));
+    window.addEventListener("unhandledrejection", (e) => logError("Unhandled promise rejection:", e.reason));
+
+    // --- Main ----------------------------------------------------------------
     (async () => {
-      const inIframe = isRunningInIframe();
-      const hasTeams = !!(window.microsoftTeams && microsoftTeams.app);
-
-      // If we're not in an iframe, we're probably not in the Teams tab canvas.
-      if (!inIframe || !hasTeams) {
+      // If not inside an iframe, we're not in Teams' tab canvas.
+      if (!isInIframe()) {
         applyTheme("default");
         show("notInTeams", true);
         setLoading(false);
         return;
       }
 
-      try {
-        // Required: initialize the Teams SDK for tabs to render.
-        await microsoftTeams.app.initialize();
+      // Wait up to 4s for the Teams SDK to be present (local or CDN)
+      let waited = 0;
+      while (!(window.microsoftTeams && microsoftTeams.app) && waited < 4000) {
+        await new Promise(r => setTimeout(r, 100));
+        waited += 100;
+      }
+      if (!(window.microsoftTeams && microsoftTeams.app)) {
+        setLoading(false);
+        logError("Microsoft Teams JS SDK failed to load. If you are in Teams, the CDN may be blocked. Ensure ./lib/MicrosoftTeams.min.js exists.");
+        try { microsoftTeams?.app?.notifyFailure?.({ reason: "other", message: "Teams JS SDK failed to load" }); } catch {}
+        return;
+      }
 
-        // Optional: get context and theme, react to theme changes.
+      // Initialize (REQUIRED) — otherwise Teams won’t display your tab.
+      const INIT_TIMEOUT_MS = 8000;
+      const initTimer = setTimeout(() => {
+        logError("Timeout: Teams SDK initialize() did not complete in time.");
+        try { microsoftTeams.app.notifyFailure?.({ reason: "other", message: "Initialization timeout" }); } catch {}
+      }, INIT_TIMEOUT_MS);
+
+      try {
+        await microsoftTeams.app.initialize();
+        clearTimeout(initTimer);
+
         const ctx = await microsoftTeams.app.getContext();
         applyTheme(ctx.app?.theme || "default");
         microsoftTeams.app.registerOnThemeChangeHandler(applyTheme);
 
-        // Report "loaded" and "ready" to hide Teams' native loading indicator
-        // when `showLoadingIndicator: true` is set in the manifest.
+        // Hide Teams native loader (manifest has showLoadingIndicator: true)
         microsoftTeams.app.notifyAppLoaded?.();
         microsoftTeams.app.notifySuccess();
 
-        // Wire up UI now that we're initialized.
-        document.getElementById("openSnowflake").addEventListener("click", async () => {
-          try {
-            await microsoftTeams.app.openLink(SNOWFLAKE_URL);
-          } catch (e) {
-            // Fallback: just navigate this frame if openLink fails.
-            window.location.href = SNOWFLAKE_URL;
-          }
+        $("openSnowflake").addEventListener("click", async () => {
+          try { await microsoftTeams.app.openLink(SNOWFLAKE_URL); }
+          catch { window.location.href = SNOWFLAKE_URL; }
         });
 
-        // Simple diagnostics
         const env = `Host: ${ctx.app?.host?.name || "Teams"} • Theme: ${ctx.app?.theme || "default"} • Locale: ${ctx.app?.locale || "en-US"}`;
-        document.getElementById("env").textContent = env;
-        document.getElementById("diag").textContent =
-          JSON.stringify({ context: ctx, userAgent: navigator.userAgent }, null, 2);
+        $("env").textContent = env;
 
-        // Reveal app UI
+        $("diag").textContent = JSON.stringify({
+          inIframe: true,
+          isInitialized: (microsoftTeams.app.isInitialized && microsoftTeams.app.isInitialized()) || true,
+          referrer: document.referrer,
+          location: window.location.href,
+          userAgent: navigator.userAgent,
+          context: ctx
+        }, null, 2);
+
         show("app", true);
       } catch (err) {
-        console.error("Teams init error:", err);
+        clearTimeout(initTimer);
         setLoading(false);
-        // Tell Teams this tab failed so it shows its error page (better UX than a blank frame)
+        logError("Teams initialization failed.", err);
         try {
-          microsoftTeams.app.notifyFailure?.({
-            reason: "other",
-            message: (err && err.message) ? err.message : String(err)
-          });
+          microsoftTeams.app.notifyFailure?.({ reason: "other", message: err?.message || String(err) });
         } catch {}
       } finally {
         setLoading(false);
